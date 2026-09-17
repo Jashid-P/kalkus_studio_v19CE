@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.jkm.full.accounting</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Community leaves this setting invisible and empty; fill it in. -->
+            <setting id="fiscalyear" position="replace">
+                <setting id="fiscalyear" string="Fiscal Year" groups="account.group_account_user">
+                    <div class="content-group">
+                        <div class="d-flex mt16 align-items-baseline">
+                            <label for="fiscalyear_last_month" string="Last Day" class="col-lg-3 o_light_label pe-2 pe-lg-0"/>
+                            <div class="col-lg-9">
+                                <field name="fiscalyear_last_month" class="pe-2"/>
+                                <field name="fiscalyear_last_day"/>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+                <setting groups="account.group_account_user" help="Define fiscal years of more or less than twelve months">
+                    <field name="group_fiscal_year"/>
+                    <div class="mt16">
+                        <button name="%(action_account_fiscal_year)d" icon="oi-arrow-right"
+                                type="action" string="Fiscal Years" class="btn-link"
+                                invisible="not group_fiscal_year"/>
+                    </div>
+                </setting>
+            </setting>
+        </field>
+    </record>
+</odoo>

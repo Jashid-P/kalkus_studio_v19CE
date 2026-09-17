@@ -1,0 +1,10 @@
+// = Main Navbar Variables - Dark mode
+// ============================================================================
+// Loaded through `web.dark_mode_variables`, before the light counterpart.
+// No CSS hacks, variable overrides only.
+//
+// $o-white is #000 in dark mode, so the light-mode `$o-navbar-background:
+// $o-white` would already be dark; this pins it to the view surface instead so
+// the bar reads as a distinct plane against the darker webclient ground.
+
+$o-navbar-background: $o-view-background-color !default;

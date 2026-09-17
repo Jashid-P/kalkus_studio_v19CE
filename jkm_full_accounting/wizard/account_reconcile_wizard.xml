@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_reconcile_wizard_form" model="ir.ui.view">
+        <field name="name">account.reconcile.wizard.form</field>
+        <field name="model">account.reconcile.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reconcile">
+                <field name="move_line_ids" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="company_currency_id" invisible="1"/>
+                <field name="is_write_off_required" invisible="1"/>
+                <field name="reco_account_id" invisible="1"/>
+                <div class="alert alert-info" role="status">
+                    The selected items do not balance. Write the difference off, or
+                    reconcile partially and leave the remainder open.
+                </div>
+                <group>
+                    <group>
+                        <field name="amount" widget="monetary"/>
+                        <field name="allow_partials"/>
+                    </group>
+                    <group invisible="allow_partials">
+                        <field name="journal_id" options="{'no_create': True}"/>
+                        <field name="account_id" options="{'no_create': True}" required="not allow_partials"/>
+                        <field name="date"/>
+                        <field name="label"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="reconcile" type="object" string="Reconcile" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_move_line_posted_unreconciled" model="ir.actions.act_window">
+        <field name="name">Journal Items to Reconcile</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[('display_type', 'not in', ('line_section', 'line_subsection', 'line_note')), ('account_id.reconcile', '=', True), ('full_reconcile_id', '=', False)]</field>
+        <field name="context">{'search_default_group_by_account': True, 'search_default_group_by_partner': True}</field>
+    </record>
+</odoo>

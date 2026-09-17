@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        The context of a client action is stored as a string and evaluated by
+        the web client, where ref() does not exist. Building the dict with
+        eval= resolves the reference server-side while the file is loaded, so
+        the stored context holds a literal id the browser can evaluate.
+    -->
+    <record id="action_balance_sheet" model="ir.actions.client">
+        <field name="name">Balance Sheet</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('balance_sheet')}"/>
+    </record>
+    <record id="action_profit_and_loss" model="ir.actions.client">
+        <field name="name">Profit and Loss</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('profit_and_loss')}"/>
+    </record>
+    <record id="action_general_ledger" model="ir.actions.client">
+        <field name="name">General Ledger</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('general_ledger_report')}"/>
+    </record>
+    <record id="action_trial_balance" model="ir.actions.client">
+        <field name="name">Trial Balance</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('trial_balance_report')}"/>
+    </record>
+    <record id="action_partner_ledger" model="ir.actions.client">
+        <field name="name">Partner Ledger</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('partner_ledger_report')}"/>
+    </record>
+    <record id="action_aged_receivable" model="ir.actions.client">
+        <field name="name">Aged Receivable</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('aged_receivable_report')}"/>
+    </record>
+    <record id="action_aged_payable" model="ir.actions.client">
+        <field name="name">Aged Payable</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('aged_payable_report')}"/>
+    </record>
+    <record id="action_cash_flow" model="ir.actions.client">
+        <field name="name">Cash Flow Statement</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('cash_flow_report')}"/>
+    </record>
+    <record id="action_tax_audit" model="ir.actions.client">
+        <field name="name">Tax Report</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('tax_audit_report')}"/>
+    </record>
+</odoo>

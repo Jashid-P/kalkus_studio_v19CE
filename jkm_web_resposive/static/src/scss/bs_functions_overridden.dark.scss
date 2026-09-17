@@ -1,0 +1,18 @@
+///
+/// Dark mode - Bootstrap function overrides.
+///
+/// Bootstrap's tint/shade helpers assume a light ground: `tint-color` mixes
+/// toward white and `shade-color` toward black. On a dark ground that is
+/// backwards, so both are swapped. Loaded right after bootstrap's
+/// `_functions.scss` in the dark bundles.
+///
+
+// Tint a color: mix a color with black
+@function tint-color($color, $weight) {
+    @return mix(#000, $color, $weight);
+}
+
+// Shade a color: mix a color with white
+@function shade-color($color, $weight) {
+    @return mix(#FFF, $color, $weight);
+}

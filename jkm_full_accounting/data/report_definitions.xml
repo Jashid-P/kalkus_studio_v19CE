@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo auto_sequence="1">
+    <record id="general_ledger_report" model="account.report">
+        <field name="name">General Ledger</field>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_analytic" eval="True"/>
+        <field name="filter_period_comparison" eval="False"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="default_opening_date_filter">this_month</field>
+        <field name="load_more_limit">80</field>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" ref="model_account_general_ledger_report_handler"/>
+        <field name="column_ids">
+            <record id="general_ledger_column_date" model="account.report.column">
+                <field name="name">Date</field><field name="expression_label">date</field><field name="figure_type">date</field>
+            </record>
+            <record id="general_ledger_column_partner" model="account.report.column">
+                <field name="name">Partner</field><field name="expression_label">partner_name</field><field name="figure_type">string</field>
+            </record>
+            <record id="general_ledger_column_debit" model="account.report.column">
+                <field name="name">Debit</field><field name="expression_label">debit</field><field name="figure_type">monetary</field>
+            </record>
+            <record id="general_ledger_column_credit" model="account.report.column">
+                <field name="name">Credit</field><field name="expression_label">credit</field><field name="figure_type">monetary</field>
+            </record>
+            <record id="general_ledger_column_balance" model="account.report.column">
+                <field name="name">Balance</field><field name="expression_label">end_balance</field><field name="figure_type">monetary</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="trial_balance_report" model="account.report">
+        <field name="search_bar" eval="True"/>
+        <field name="name">Trial Balance</field>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_period_comparison" eval="False"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="custom_handler_model_id" ref="model_account_trial_balance_report_handler"/>
+        <field name="column_ids">
+            <record id="trial_balance_column_initial" model="account.report.column">
+                <field name="name">Balance</field><field name="expression_label">initial_balance</field>
+                <field name="figure_type">monetary</field><field name="group_label">Initial Balance</field>
+            </record>
+            <record id="trial_balance_column_debit" model="account.report.column">
+                <field name="name">Debit</field><field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+            </record>
+            <record id="trial_balance_column_credit" model="account.report.column">
+                <field name="name">Credit</field><field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+            </record>
+            <record id="trial_balance_column_end" model="account.report.column">
+                <field name="name">Balance</field><field name="expression_label">end_balance</field>
+                <field name="figure_type">monetary</field><field name="group_label">End Balance</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="partner_ledger_report" model="account.report">
+        <field name="search_bar" eval="True"/>
+        <field name="name">Partner Ledger</field>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_period_comparison" eval="False"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="custom_handler_model_id" ref="model_account_partner_ledger_report_handler"/>
+        <field name="load_more_limit">80</field>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="column_ids">
+            <record id="partner_ledger_column_journal" model="account.report.column"><field name="name">Journal</field><field name="expression_label">journal_code</field><field name="figure_type">string</field></record>
+            <record id="partner_ledger_column_account" model="account.report.column"><field name="name">Account</field><field name="expression_label">account_code</field><field name="figure_type">string</field></record>
+            <record id="partner_ledger_column_invoice_date" model="account.report.column"><field name="name">Invoice Date</field><field name="expression_label">invoice_date</field><field name="figure_type">date</field></record>
+            <record id="partner_ledger_column_due_date" model="account.report.column"><field name="name">Due Date</field><field name="expression_label">date_maturity</field><field name="figure_type">date</field></record>
+            <record id="partner_ledger_column_matching" model="account.report.column"><field name="name">Matching</field><field name="expression_label">matching_number</field><field name="figure_type">string</field></record>
+            <record id="partner_ledger_column_debit" model="account.report.column"><field name="name">Debit</field><field name="expression_label">debit</field><field name="figure_type">monetary</field></record>
+            <record id="partner_ledger_column_credit" model="account.report.column"><field name="name">Credit</field><field name="expression_label">credit</field><field name="figure_type">monetary</field></record>
+            <record id="partner_ledger_column_amount_currency" model="account.report.column"><field name="name">Amount Currency</field><field name="expression_label">amount_currency</field><field name="figure_type">monetary</field></record>
+            <record id="partner_ledger_column_balance" model="account.report.column"><field name="name">Balance</field><field name="expression_label">balance</field><field name="figure_type">monetary</field></record>
+        </field>
+    </record>
+
+    <record id="aged_receivable_report" model="account.report">
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="name">Aged Receivable</field>
+        <field name="filter_date_range" eval="False"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">today</field>
+        <field name="custom_handler_model_id" ref="model_account_aged_partner_balance_report_handler"/>
+        <field name="column_ids">
+            <record id="aged_receivable_column_invoice_date" model="account.report.column"><field name="name">Invoice Date</field><field name="expression_label">invoice_date</field><field name="figure_type">date</field></record>
+            <record id="aged_receivable_column_at_date" model="account.report.column"><field name="name">At Date</field><field name="expression_label">at_date</field><field name="figure_type">monetary</field></record>
+            <record id="aged_receivable_column_0" model="account.report.column"><field name="name">1–30</field><field name="expression_label">period0</field><field name="figure_type">monetary</field></record>
+            <record id="aged_receivable_column_1" model="account.report.column"><field name="name">31–60</field><field name="expression_label">period1</field><field name="figure_type">monetary</field></record>
+            <record id="aged_receivable_column_2" model="account.report.column"><field name="name">61–90</field><field name="expression_label">period2</field><field name="figure_type">monetary</field></record>
+            <record id="aged_receivable_column_3" model="account.report.column"><field name="name">91–120</field><field name="expression_label">period3</field><field name="figure_type">monetary</field></record>
+            <record id="aged_receivable_column_4" model="account.report.column"><field name="name">Older</field><field name="expression_label">period4</field><field name="figure_type">monetary</field></record>
+            <record id="aged_receivable_column_total" model="account.report.column"><field name="name">Total</field><field name="expression_label">total</field><field name="figure_type">monetary</field></record>
+        </field>
+    </record>
+
+    <record id="aged_payable_report" model="account.report">
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="name">Aged Payable</field>
+        <field name="filter_date_range" eval="False"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">today</field>
+        <field name="custom_handler_model_id" ref="model_account_aged_payable_report_handler"/>
+        <field name="column_ids">
+            <record id="aged_payable_column_invoice_date" model="account.report.column"><field name="name">Invoice Date</field><field name="expression_label">invoice_date</field><field name="figure_type">date</field></record>
+            <record id="aged_payable_column_at_date" model="account.report.column"><field name="name">At Date</field><field name="expression_label">at_date</field><field name="figure_type">monetary</field></record>
+            <record id="aged_payable_column_0" model="account.report.column"><field name="name">1–30</field><field name="expression_label">period0</field><field name="figure_type">monetary</field></record>
+            <record id="aged_payable_column_1" model="account.report.column"><field name="name">31–60</field><field name="expression_label">period1</field><field name="figure_type">monetary</field></record>
+            <record id="aged_payable_column_2" model="account.report.column"><field name="name">61–90</field><field name="expression_label">period2</field><field name="figure_type">monetary</field></record>
+            <record id="aged_payable_column_3" model="account.report.column"><field name="name">91–120</field><field name="expression_label">period3</field><field name="figure_type">monetary</field></record>
+            <record id="aged_payable_column_4" model="account.report.column"><field name="name">Older</field><field name="expression_label">period4</field><field name="figure_type">monetary</field></record>
+            <record id="aged_payable_column_total" model="account.report.column"><field name="name">Total</field><field name="expression_label">total</field><field name="figure_type">monetary</field></record>
+        </field>
+    </record>
+
+    <record id="cash_flow_report" model="account.report">
+        <field name="search_bar" eval="False"/>
+        <field name="name">Cash Flow Statement</field>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">this_month</field>
+        <field name="custom_handler_model_id" ref="model_account_cash_flow_report_handler"/>
+        <field name="column_ids">
+            <record id="cash_flow_column_balance" model="account.report.column"><field name="name">Balance</field><field name="expression_label">balance</field><field name="figure_type">monetary</field></record>
+        </field>
+    </record>
+
+    <record id="tax_audit_report" model="account.report">
+        <field name="search_bar" eval="True"/>
+        <field name="name">Tax Report</field>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="custom_handler_model_id" ref="model_account_tax_audit_report_handler"/>
+        <field name="column_ids">
+            <record id="tax_audit_column_net" model="account.report.column">
+                <field name="name">Net</field><field name="expression_label">net</field>
+                <field name="figure_type">monetary</field>
+            </record>
+            <record id="tax_audit_column_tax" model="account.report.column">
+                <field name="name">Tax</field><field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+            </record>
+        </field>
+    </record>
+</odoo>

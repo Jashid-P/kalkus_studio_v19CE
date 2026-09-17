@@ -1,0 +1,15 @@
+// = Home Menu Variables - Dark mode
+// ============================================================================
+// Loaded through `web.dark_mode_variables`, before the light counterpart.
+// No CSS hacks, variable overrides only.
+
+// $o-black is #FFF in dark mode, so this is the white caption. This is the
+// declaration that was missing: without it the caption kept the light-mode
+// dark grey and became invisible on the dark ground.
+$o-home-menu-caption-color: $o-black !default;
+$o-home-menu-caption-shadow: 0 1px 2px rgba(0, 0, 0, .75), 0 2px 5px rgba(0, 0, 0, .05), 0 0 5px rgba(0, 0, 0, .05) !default;
+
+$o-home-menu-app-icon-background-color: rgba(#fff, .05) !default;
+
+$o-home-menu-background-color: #000511 !default;
+$o-home-menu-background-image: linear-gradient(135deg, rgba(71, 75, 96, .8) 0 20%, transparent 20% 72%, rgba(41, 44, 60, .6) 72%), linear-gradient(315deg, rgba(28, 30, 42, .75) 0 24%, transparent 24% 68%, rgba(58, 46, 60, .55) 68%), linear-gradient(45deg, #1b1f2e, #2a2334 52%, #141824) !default;

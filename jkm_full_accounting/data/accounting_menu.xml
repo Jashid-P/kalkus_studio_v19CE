@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Community ships the app as "Invoicing". Enterprise replaces it with a
+        full "Accounting" app by creating a new root menu and moving the
+        existing sections underneath it; the now-childless "Invoicing" root
+        stops being rendered on its own. The same approach is used here so the
+        change is reversible: the uninstall hook moves the sections back.
+
+        The root menu carries the dashboard action directly. Left without one,
+        the web client falls through to the first *visible* child, which is the
+        Dashboard only for users holding account.group_account_basic; everyone
+        else would land on Customers.
+    -->
+    <menuitem id="menu_accounting"
+        name="Accounting"
+        groups="account.group_account_readonly,account.group_account_invoice"
+        web_icon="jkm_full_accounting,static/description/icon.png"
+        action="account.open_account_journal_dashboard_kanban"
+        sequence="60"/>
+
+    <record id="account.menu_board_journal_1" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_accounting"/>
+    </record>
+    <record id="account.menu_finance_receivables" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_accounting"/>
+    </record>
+    <record id="account.menu_finance_payables" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_accounting"/>
+    </record>
+    <record id="account.menu_finance_entries" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_accounting"/>
+    </record>
+    <record id="account.account_audit_menu" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_accounting"/>
+    </record>
+    <record id="account.menu_finance_reports" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_accounting"/>
+    </record>
+    <record id="account.menu_finance_configuration" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_accounting"/>
+    </record>
+
+    <!-- Accountant-only entries added under the new app. -->
+    <menuitem id="menu_account_fiscal_year"
+        name="Fiscal Years"
+        parent="account.account_account_menu"
+        action="action_account_fiscal_year"
+        groups="jkm_full_accounting.group_fiscal_year"
+        sequence="20"/>
+
+    <!--
+        Community leaves the "Closing" section empty. Enterprise fills it with
+        the end-of-period tools, so they go there rather than under
+        Configuration where an accountant would not look for them.
+    -->
+    <menuitem id="menu_account_reconcile"
+        name="Reconcile"
+        parent="account.account_closing_menu"
+        action="action_move_line_posted_unreconciled"
+        groups="account.group_account_user"
+        sequence="10"/>
+
+    <menuitem id="menu_account_change_lock_date"
+        name="Lock Dates"
+        parent="account.account_closing_menu"
+        action="action_account_change_lock_date"
+        groups="account.group_account_manager"
+        sequence="30"/>
+</odoo>
