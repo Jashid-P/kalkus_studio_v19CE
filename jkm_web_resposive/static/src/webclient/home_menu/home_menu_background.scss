@@ -1,0 +1,17 @@
+// = Home Menu Background
+// ============================================================================
+// Shared between the web client home menu and the login screen, which is why
+// it lives in `assets_frontend` too.
+//
+// The ground is driven by SCSS variables (overridden by
+// `home_menu.variables.dark.scss` in the dark bundles) and exposed through
+// custom properties so another module can still swap it at runtime.
+
+.o_home_menu_background, .o_web_client.o_home_menu_background {
+    background: {
+        size: cover;
+        attachment: fixed;
+        color: var(--homeMenu-bg-color, #{$o-home-menu-background-color});
+        image: var(--homeMenu-bg-image, #{$o-home-menu-background-image});
+    }
+}

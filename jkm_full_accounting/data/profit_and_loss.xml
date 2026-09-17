@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        The statement reads as a flat sequence: each block of accounts is
+        followed by the subtotal it feeds, so the eye runs straight down from
+        income to net result without having to unpick a tree.
+
+        Income and expense accounts carry credit and debit balances
+        respectively; '-sum' presents revenue as a positive figure and keeps
+        costs subtractive.
+    -->
+    <record id="profit_and_loss" model="account.report">
+        <field name="search_bar" eval="False"/>
+        <field name="name">Profit and Loss</field>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_show_draft" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="availability_condition">always</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="show_section_totals" eval="True"/>
+        <field name="column_ids">
+            <record id="pl_column_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="pl_income" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Income</field>
+                <field name="code">PL_INCOME</field>
+                <field name="hierarchy_level">1</field>
+                <field name="sequence">10</field>
+                <field name="groupby">account_id,journal_id</field>
+                <field name="user_groupby">account_id,journal_id</field>
+                <field name="foldable" eval="True"/>
+                <field name="domain_formula">-sum([('account_id.account_type', '=', 'income')])</field>
+            </record>
+
+            <record id="pl_cost_of_revenue" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Cost of Sales</field>
+                <field name="code">PL_COST</field>
+                <field name="hierarchy_level">1</field>
+                <field name="sequence">20</field>
+                <field name="domain_formula">sum([('account_id.account_type', '=', 'expense_direct_cost')])</field>
+            </record>
+
+            <record id="pl_gross_profit" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Gross Profit</field>
+                <field name="code">PL_GROSS</field>
+                <field name="hierarchy_level">0</field>
+                <field name="sequence">30</field>
+                <field name="aggregation_formula">PL_INCOME.balance - PL_COST.balance</field>
+            </record>
+
+            <record id="pl_expense_section" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Expense</field>
+                <field name="code">PL_EXPENSE</field>
+                <field name="hierarchy_level">1</field>
+                <field name="sequence">40</field>
+                <field name="groupby">account_id,journal_id</field>
+                <field name="user_groupby">account_id,journal_id</field>
+                <field name="foldable" eval="True"/>
+                <field name="domain_formula">sum([('account_id.account_type', 'in', ['expense', 'expense_depreciation'])])</field>
+            </record>
+
+            <record id="pl_net_operating_income" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Net Operating Income</field>
+                <field name="code">PL_NET_OP</field>
+                <field name="hierarchy_level">0</field>
+                <field name="sequence">50</field>
+                <field name="aggregation_formula">PL_GROSS.balance - PL_EXPENSE.balance</field>
+            </record>
+
+            <record id="pl_other_income" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Other Income</field>
+                <field name="code">PL_OTHER_INCOME</field>
+                <field name="hierarchy_level">1</field>
+                <field name="sequence">60</field>
+                <field name="domain_formula">-sum([('account_id.account_type', '=', 'income_other')])</field>
+            </record>
+
+            <record id="pl_other_expense" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Other Expense</field>
+                <field name="code">PL_OTHER_EXPENSE</field>
+                <field name="hierarchy_level">1</field>
+                <field name="sequence">70</field>
+                <field name="domain_formula">sum([('account_id.account_type', '=', 'expense_other')])</field>
+            </record>
+
+            <record id="pl_net_other_income" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Net Other Income</field>
+                <field name="code">PL_NET_OTHER</field>
+                <field name="hierarchy_level">0</field>
+                <field name="sequence">80</field>
+                <field name="aggregation_formula">PL_OTHER_INCOME.balance - PL_OTHER_EXPENSE.balance</field>
+            </record>
+
+            <record id="pl_net_profit" model="account.report.line">
+                <field name="parent_id" eval="False"/>
+                <field name="name">Net Income</field>
+                <field name="code">PL_NET</field>
+                <field name="hierarchy_level">0</field>
+                <field name="sequence">90</field>
+                <field name="aggregation_formula">PL_NET_OP.balance + PL_NET_OTHER.balance</field>
+            </record>
+        </field>
+    </record>
+</odoo>

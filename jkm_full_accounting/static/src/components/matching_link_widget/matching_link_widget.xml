@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="jkm_full_accounting.MatchingLink">
+        <span t-if="matchingNumber"
+              class="o_tag badge rounded-pill cursor-pointer"
+              t-attf-class="o_tag_color_{{ colorCode }}"
+              t-on-click.stop="viewMatch"
+              title="View the matched entries">
+            <t t-out="matchingNumber"/>
+        </span>
+        <span t-elif="props.record.data.is_account_reconcile"
+              class="text-muted cursor-pointer"
+              t-on-click.stop="reconcile"
+              title="Find items to reconcile with">
+            <i class="fa fa-link"/>
+        </span>
+    </t>
+</templates>

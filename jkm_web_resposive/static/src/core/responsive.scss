@@ -1,0 +1,11 @@
+.o_content, .o_list_renderer, .o_kanban_renderer, .o_pivot {
+    max-width: 100%;
+}
+
+@media (max-width: 767.98px) {
+    .o_form_view .o_form_sheet_bg { padding: 0 !important; }
+    .o_form_view .o_form_sheet { min-width: 0 !important; width: 100% !important; }
+    .o_list_view .o_list_table { min-width: 720px; }
+    .o_kanban_renderer { padding: .5rem !important; }
+    .o_control_panel { padding-inline: .5rem !important; }
+}

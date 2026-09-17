@@ -1,0 +1,24 @@
+// = Home Menu Variables
+// ============================================================================
+// Loaded AFTER web's primary_variables.scss, so web's variables (e.g.
+// $o-main-text-color) are available here. Variables only - no CSS rules.
+
+$o-home-menu-font-size-base: 1rem !default;
+$o-home-menu-container-size: 850px !default;
+$o-home-menu-app-icon-max-width: 70px !default;
+$o-home-menu-app-icon-padding: 10px !default;
+$o-home-menu-app-icon-background-color: rgba(#fff, 1) !default;
+
+// Caption sits on the light home-menu ground, so it follows body text.
+$o-home-menu-caption-color: $o-main-text-color !default;
+$o-home-menu-caption-shadow: none !default;
+
+// A user-uploaded background can be any color, so captions go white with a
+// shadow to stay legible whatever the image behind them.
+$o-home-menu-custom-caption-color: #fff !default;
+$o-home-menu-custom-caption-shadow: 0 1px 2px rgba(0, 0, 0, .75), 0 2px 5px rgba(0, 0, 0, .05), 0 0 5px rgba(0, 0, 0, .05) !default;
+
+// Home-menu ground, exposed as a CSS variable by home_menu_background.scss so
+// the dark bundle can swap it without redeclaring the whole background.
+$o-home-menu-background-color: $o-gray-200 !default;
+$o-home-menu-background-image: linear-gradient(135deg, rgba(255, 255, 255, .48) 0 20%, transparent 20% 72%, rgba(255, 255, 255, .34) 72%), linear-gradient(315deg, rgba(220, 220, 239, .7) 0 24%, transparent 24% 68%, rgba(255, 238, 224, .62) 68%), linear-gradient(45deg, #dfe8f5, #f5e7df 52%, #deddf1) !default;

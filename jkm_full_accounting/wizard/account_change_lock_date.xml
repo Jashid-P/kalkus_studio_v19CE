@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_change_lock_date_form" model="ir.ui.view">
+        <field name="name">account.change.lock.date.form</field>
+        <field name="model">account.change.lock.date</field>
+        <field name="arch" type="xml">
+            <form string="Lock Dates">
+                <sheet>
+                    <field name="company_id" invisible="1"/>
+                    <field name="current_hard_lock_date" invisible="1"/>
+                    <group>
+                        <group string="Soft Locks">
+                            <field name="fiscalyear_lock_date"/>
+                            <field name="tax_lock_date"/>
+                            <field name="sale_lock_date"/>
+                            <field name="purchase_lock_date"/>
+                        </group>
+                        <group string="Hard Lock">
+                            <div colspan="2" class="alert alert-warning" role="alert">
+                                A hard lock cannot be undone or moved back to an earlier date.
+                            </div>
+                            <field name="hard_lock_date"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_apply" type="object" string="Save" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_change_lock_date" model="ir.actions.act_window">
+        <field name="name">Lock Dates</field>
+        <field name="res_model">account.change.lock.date</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

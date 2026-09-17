@@ -1,0 +1,225 @@
+.account_report {
+    // The report reads as a printed sheet on a neutral ground, the way the
+    // Accounting reports present themselves.
+    .o_account_report_sheet {
+        max-width: 1100px;
+        background: var(--o-view-background-color, #fff);
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 3px;
+        padding: 1.5rem 1rem;
+    }
+
+    .table {
+        thead th {
+            border-bottom: 1px solid var(--border-color, #dee2e6);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        thead th.period_header {
+            border-bottom: 1px solid var(--border-color, #dee2e6);
+            font-weight: 700;
+        }
+
+        tbody tr > td {
+            border-bottom: 1px solid rgba(0, 0, 0, .05);
+            padding: .3rem .5rem;
+        }
+
+        tbody tr:hover > td {
+            background: rgba(0, 0, 0, .025);
+        }
+    }
+
+    .line_name .wrapper {
+        display: flex;
+        align-items: center;
+        column-gap: .25rem;
+    }
+
+    .line_name.unfoldable,
+    tr.unfoldable .line_name {
+        cursor: pointer;
+    }
+
+    .btn_foldable {
+        opacity: .55;
+    }
+
+    tr:hover .btn_foldable {
+        opacity: 1;
+    }
+
+    .line_cell.numeric {
+        text-align: right;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    // Accountants read losses in red; the sign alone is easy to miss.
+    .line_cell.negative {
+        color: var(--danger, #d9534f);
+    }
+
+    // Statement reports (Balance Sheet, Profit and Loss) nest into sections,
+    // so depth carries meaning: banded headings, bold subtotals.
+    .layout-hierarchy {
+        tr.line_level_0 > td {
+            background: rgba(0, 0, 0, .06);
+            font-weight: 700;
+        }
+
+        tr.line_level_1 > td {
+            font-weight: 600;
+        }
+    }
+
+    // Ledger reports (General Ledger, Trial Balance, Partner Ledger, Aged
+    // Balance, Cash Flow, Tax Audit) are a flat list of accounts or partners.
+    // Banding every row would be noise, so only the closing total is marked.
+    .layout-list {
+        tr.line_level_1 > td {
+            font-weight: 400;
+        }
+
+        // Journal items shown under an unfolded account are secondary detail.
+        tr.line_level_3 > td {
+            color: var(--o-main-text-color, #4c4c4c);
+            font-size: .92em;
+        }
+    }
+
+    tr.total > td {
+        font-weight: 700;
+        border-top: 2px solid var(--border-color, #adb5bd);
+        border-bottom: none;
+        background: rgba(0, 0, 0, .03);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    // Indentation grows with the line's depth in the report tree.
+    @for $i from 0 through 6 {
+        tr.line_level_#{$i} .line_name .wrapper {
+            padding-left: #{$i * 1}rem;
+        }
+    }
+}
+
+    // Row actions stay out of the way until the row is hovered, so a dense
+    // ledger is not peppered with icons.
+    .line_actions {
+        display: inline-flex;
+        align-items: center;
+        column-gap: .4rem;
+        margin-left: .5rem;
+    }
+
+    .btn_more,
+    .btn_annotation {
+        opacity: 0;
+        cursor: pointer;
+        font-size: .9em;
+        color: var(--o-main-text-color, #6c757d);
+        transition: opacity .1s ease-in-out;
+    }
+
+    tr:hover .btn_more,
+    tr:hover .btn_annotation,
+    tr.unfolded .btn_more,
+    tr.unfolded .btn_annotation {
+        opacity: .6;
+    }
+
+    tr:hover .btn_more:hover,
+    tr:hover .btn_annotation:hover {
+        opacity: 1;
+        color: var(--primary, #714b67);
+    }
+
+    // An existing note stays visible, otherwise it would be invisible until
+    // someone happened to hover the row it belongs to.
+    .btn_annotation.annotated {
+        opacity: 1;
+        color: var(--primary, #714b67);
+    }
+
+    // Chatter sits alongside the report rather than over it, so figures stay
+    // readable while a conversation is open.
+    .o_account_report_chatter {
+        width: 35%;
+        min-width: 340px;
+        max-width: 560px;
+        background: var(--o-view-background-color, #fff);
+    }
+
+    @media (max-width: 768px) {
+        .o_account_report_chatter {
+            width: 100%;
+            min-width: 0;
+            max-width: none;
+        }
+    }
+
+    // Shown as a quiet pill beside the account name, the way the Accounting
+    // reports surface the drill-down into the underlying items.
+    .btn_line_badge {
+        opacity: 0;
+        padding: 0 .4rem;
+        font-size: .75rem;
+        line-height: 1.4;
+        white-space: nowrap;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 3px;
+        background: var(--o-view-background-color, #fff);
+        color: var(--o-main-text-color, #6c757d);
+    }
+
+    tr:hover .btn_line_badge,
+    tr.unfolded .btn_line_badge {
+        opacity: 1;
+    }
+
+    .btn_line_badge:hover {
+        border-color: var(--primary, #714b67);
+        color: var(--primary, #714b67);
+    }
+
+    // Sits in the control panel like the Accounting reports' own search: wide
+    // enough to read a partner or account name while typing.
+    .o_report_search {
+        position: relative;
+        flex: 0 1 280px;
+        min-width: 180px;
+
+        input {
+            padding-left: 1.9rem;
+            padding-right: 1.8rem;
+        }
+    }
+
+    .o_report_search_icon,
+    .o_report_search_clear {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--o-main-text-color, #6c757d);
+        opacity: .6;
+        pointer-events: none;
+    }
+
+    .o_report_search_icon {
+        left: .6rem;
+    }
+
+    .o_report_search_clear {
+        right: .6rem;
+        cursor: pointer;
+        pointer-events: auto;
+    }
+
+    .o_report_search_clear:hover {
+        opacity: 1;
+    }

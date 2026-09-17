@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="jkm_full_accounting.CommunityAccountReport">
+        <div class="o_action account_report d-flex flex-column h-100">
+
+            <!-- ============================ FILTERS ============================ -->
+            <div class="o_control_panel d-flex align-items-center flex-wrap gap-2 px-3 py-2 border-bottom">
+                <h5 class="m-0 me-3 fw-bold" t-out="reportName"/>
+
+                <!-- Search -->
+                <div t-if="hasSearch" class="o_report_search">
+                    <i class="fa fa-search o_report_search_icon"/>
+                    <input type="text" class="form-control form-control-sm" placeholder="Search..."
+                           t-model="state.search"
+                           t-on-input="onSearchInput"/>
+                    <i t-if="state.search" class="fa fa-times o_report_search_clear"
+                       title="Clear" t-on-click="clearSearch"/>
+                </div>
+
+                <!-- Period -->
+                <Dropdown>
+                    <button class="btn btn-secondary btn-sm">
+                        <i class="fa fa-calendar me-1"/><t t-out="dateLabel"/>
+                    </button>
+                    <t t-set-slot="content">
+                        <t t-foreach="dateFilters" t-as="filter" t-key="filter.id">
+                            <DropdownItem onSelected="() => this.setDateFilter(filter.id)">
+                                <span t-att-class="options.date and options.date.filter === filter.id ? 'fw-bold' : ''"
+                                      t-out="filter.label"/>
+                            </DropdownItem>
+                        </t>
+                        <div class="dropdown-divider"/>
+                        <div class="px-3 py-2" t-on-click.stop="">
+                            <div class="small text-muted mb-1">Custom</div>
+                            <input type="date" class="form-control form-control-sm mb-1"
+                                   t-model="state.customDateFrom"
+                                   t-att-disabled="options.date and options.date.mode === 'single'"/>
+                            <input type="date" class="form-control form-control-sm mb-2" t-model="state.customDateTo"/>
+                            <button class="btn btn-primary btn-sm w-100" t-on-click="applyCustomDates">Apply</button>
+                        </div>
+                    </t>
+                </Dropdown>
+
+                <!-- Comparison -->
+                <Dropdown t-if="options.comparison">
+                    <button class="btn btn-secondary btn-sm">
+                        <i class="fa fa-percent me-1"/><t t-out="comparisonLabel"/>
+                    </button>
+                    <t t-set-slot="content">
+                        <t t-foreach="comparisonFilters" t-as="filter" t-key="filter.id">
+                            <DropdownItem onSelected="() => this.setComparison(filter.id)">
+                                <span t-att-class="options.comparison.filter === filter.id ? 'fw-bold' : ''"
+                                      t-out="filter.label"/>
+                            </DropdownItem>
+                        </t>
+                        <t t-if="options.comparison.filter !== 'no_comparison'">
+                            <div class="dropdown-divider"/>
+                            <div class="px-3 py-1 small text-muted">Number of periods</div>
+                            <t t-foreach="[1, 2, 3]" t-as="n" t-key="n">
+                                <DropdownItem onSelected="() => this.setComparisonPeriods(n)">
+                                    <span t-att-class="options.comparison.number_period === n ? 'fw-bold' : ''" t-out="n"/>
+                                </DropdownItem>
+                            </t>
+                        </t>
+                    </t>
+                </Dropdown>
+
+                <!-- Journals -->
+                <Dropdown t-if="options.journals and options.journals.length">
+                    <button class="btn btn-secondary btn-sm">
+                        <i class="fa fa-book me-1"/><t t-out="journalLabel"/>
+                    </button>
+                    <t t-set-slot="content">
+                        <DropdownItem onSelected="() => this.clearJournals()">
+                            <span t-att-class="!options.selected_journal_ids.length ? 'fw-bold' : ''">All Journals</span>
+                        </DropdownItem>
+                        <div class="dropdown-divider"/>
+                        <t t-foreach="options.journals" t-as="journal" t-key="journal.id">
+                            <DropdownItem onSelected="() => this.toggleJournal(journal.id)" closingMode="'none'">
+                                <span>
+                                    <i class="fa fa-fw me-1" t-att-class="journal.selected ? 'fa-check-square-o' : 'fa-square-o'"/>
+                                    <t t-out="journal.name"/>
+                                    <span class="text-muted ms-1" t-out="journal.code"/>
+                                </span>
+                            </DropdownItem>
+                        </t>
+                    </t>
+                </Dropdown>
+
+                <!-- Posted / all entries -->
+                <Dropdown>
+                    <button class="btn btn-secondary btn-sm">
+                        <i class="fa fa-sliders me-1"/><t t-out="entriesLabel"/>
+                    </button>
+                    <t t-set-slot="content">
+                        <DropdownItem onSelected="() => this.setAllEntries(false)">
+                            <span t-att-class="!options.all_entries ? 'fw-bold' : ''">Posted Entries</span>
+                        </DropdownItem>
+                        <DropdownItem onSelected="() => this.setAllEntries(true)">
+                            <span t-att-class="options.all_entries ? 'fw-bold' : ''">All Entries</span>
+                        </DropdownItem>
+                        <div class="dropdown-divider"/>
+                        <DropdownItem onSelected="() => this.toggleUnfoldAll()">
+                            <span>
+                                <i class="fa fa-fw me-1" t-att-class="options.unfold_all ? 'fa-check-square-o' : 'fa-square-o'"/>
+                                Unfold All
+                            </span>
+                        </DropdownItem>
+                    </t>
+                </Dropdown>
+            </div>
+
+            <!-- ============================ CONTENT ============================ -->
+            <div class="d-flex flex-row flex-grow-1 overflow-hidden">
+            <div class="o_content flex-grow-1 overflow-auto">
+                <div t-if="state.loading" class="text-center p-5 text-muted">
+                    <span class="fa fa-spinner fa-spin me-2"/>Loading report…
+                </div>
+                <div t-elif="state.error" class="alert alert-danger m-3" role="alert" t-out="state.error"/>
+                <t t-else="">
+                    <div t-foreach="warnings" t-as="warning" t-key="warning_index"
+                         class="alert alert-info rounded-0 mb-0 text-center" role="status">
+                        <t t-out="warning.message"/>
+                        <a t-if="warning.action === 'toggle_all_entries'" href="#"
+                           class="ms-2" t-on-click.prevent="() => this.setAllEntries(true)">Include them</a>
+                    </div>
+
+                    <div class="o_account_report_sheet mx-auto my-4" t-att-class="sheetClass">
+                        <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr t-if="columnHeaders.length > 1">
+                                    <th/>
+                                    <th t-foreach="columnHeaders" t-as="header" t-key="header_index"
+                                        t-att-colspan="header.colspan" class="text-center period_header"
+                                        t-out="header.name"/>
+                                </tr>
+                                <tr>
+                                    <th class="line_name"/>
+                                    <th t-foreach="columns" t-as="column" t-key="column_index"
+                                        class="text-end" t-out="column.name"/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="lines" t-as="line" t-key="line.id" t-att-class="lineClass(line)">
+                                    <td class="line_name">
+                                        <span class="wrapper">
+                                            <i t-if="line.unfoldable" class="fa fa-fw btn_foldable"
+                                               t-att-class="line.unfolded ? 'fa-caret-down' : 'fa-caret-right'"
+                                               t-on-click="() => this.toggleLine(line)"/>
+                                            <i t-else="" class="fa fa-fw"/>
+                                            <span class="name" t-out="line.name"
+                                                  t-on-click="() => this.toggleLine(line)"/>
+
+                                            <!-- Row actions, revealed on hover like the Accounting reports. -->
+                                            <span class="line_actions">
+                                                <button t-if="recordBadgeLabel(line)"
+                                                        class="btn btn-sm btn_line_badge"
+                                                        t-on-click.stop="() => this.openLineRecord(line)"
+                                                        t-out="recordBadgeLabel(line)"/>
+                                                <button t-if="hasJournalItems(line)"
+                                                        class="btn btn-sm btn_line_badge"
+                                                        t-on-click.stop="() => this.openJournalItems(line)">
+                                                    Journal Items
+                                                </button>
+                                                <Dropdown t-if="hasRecord(line)">
+                                                    <i class="fa fa-ellipsis-v btn_more" title="More"/>
+                                                    <t t-set-slot="content">
+                                                        <DropdownItem t-if="hasTaxAudit(line)"
+                                                                      onSelected="() => this.openTaxAudit(line)">
+                                                            Audit
+                                                        </DropdownItem>
+                                                        <DropdownItem t-if="hasGeneralLedger(line)"
+                                                                      onSelected="() => this.openGeneralLedger(line)">
+                                                            General Ledger
+                                                        </DropdownItem>
+                                                        <DropdownItem t-if="hasJournalItems(line)"
+                                                                      onSelected="() => this.openJournalItems(line)">
+                                                            Journal Items
+                                                        </DropdownItem>
+                                                        <DropdownItem onSelected="() => this.openLineRecord(line)"
+                                                                      t-out="openRecordLabel(line)"/>
+                                                    </t>
+                                                </Dropdown>
+                                                <i t-if="canAnnotate(line)" class="fa btn_annotation"
+                                                   t-att-class="annotationFor(line) ? 'fa-comment annotated' : 'fa-comment-o'"
+                                                   t-att-title="annotationFor(line) ? annotationFor(line).text : 'Open the conversation'"
+                                                   t-on-click.stop="() => this.openChatter(line)"/>
+                                            </span>
+                                        </span>
+                                    </td>
+                                    <td t-foreach="line.columns" t-as="column" t-key="column_index"
+                                        t-att-class="cellClass(column)" t-out="column.name"/>
+                                </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Conversation on the record behind the selected line. -->
+            <div t-if="state.chatter" class="o_account_report_chatter o-aside d-flex flex-column border-start">
+                <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+                    <span class="fw-bold text-truncate" t-out="state.chatter.name"/>
+                    <button class="btn btn-secondary btn-sm" t-on-click="closeChatter" title="Close">
+                        <i class="fa fa-close"/>
+                    </button>
+                </div>
+                <div class="flex-grow-1 overflow-auto">
+                    <Chatter threadModel="state.chatter.model"
+                             threadId="state.chatter.id"
+                             t-key="state.chatter.model + '_' + state.chatter.id"/>
+                </div>
+            </div>
+            </div>
+        </div>
+    </t>
+</templates>
