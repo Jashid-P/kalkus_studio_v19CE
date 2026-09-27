@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payslip_input_type_view_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.input.type.list</field>
+        <field name="model">hr.payslip.input.type</field>
+        <field name="arch" type="xml">
+            <list string="Other Input Types">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="struct_ids" widget="many2many_tags" optional="show"/>
+                <field name="available_in_attachments" optional="show"/>
+                <field name="is_quantity" optional="hide"/>
+                <field name="country_id" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_payslip_input_type_view_form" model="ir.ui.view">
+        <field name="name">hr.payslip.input.type.form</field>
+        <field name="model">hr.payslip.input.type</field>
+        <field name="arch" type="xml">
+            <form string="Other Input Type">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="struct_ids" widget="many2many_tags"/>
+                            <field name="available_in_attachments"/>
+                            <field name="is_quantity"/>
+                            <field name="country_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_payslip_input_type_view_search" model="ir.ui.view">
+        <field name="name">hr.payslip.input.type.search</field>
+        <field name="model">hr.payslip.input.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <filter string="Attachments" name="attachments" domain="[('available_in_attachments', '=', True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_input_type" model="ir.actions.act_window">
+        <field name="name">Other Input Types</field>
+        <field name="res_model">hr.payslip.input.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

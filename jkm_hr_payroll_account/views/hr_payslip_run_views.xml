@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payslip_run_form_inherit_account" model="ir.ui.view">
+        <field name="name">hr.payslip.run.form.account</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="jkm_hr_payroll.hr_payslip_run_form"/>
+        <field name="arch" type="xml">
+            <button name="action_paid" position="before">
+                <button name="action_register_payment" type="object" string="Register Payment" class="oe_highlight"
+                        invisible="state != '02_close'" groups="account.group_account_invoice"/>
+            </button>
+            <button name="action_paid" position="attributes">
+                <attribute name="class">btn-secondary</attribute>
+            </button>
+            <div name="button_box" position="inside">
+                <button name="action_open_moves" class="oe_stat_button" icon="fa-bars" type="object"
+                        invisible="move_count == 0" groups="account.group_account_invoice">
+                    <field name="move_count" widget="statinfo" string="Journal Entries"/>
+                </button>
+            </div>
+        </field>
+    </record>
+</odoo>

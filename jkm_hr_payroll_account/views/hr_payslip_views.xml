@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payslip_form_inherit_account" model="ir.ui.view">
+        <field name="name">hr.payslip.form.account</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="jkm_hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <button name="action_payslip_paid" position="before">
+                <field name="has_net_to_pay" invisible="1"/>
+                <button name="action_register_payment" string="Register Payment" type="object" class="oe_highlight"
+                        invisible="state != 'validated' or not has_net_to_pay" data-hotkey="r"/>
+            </button>
+            <button name="action_payslip_paid" position="attributes">
+                <attribute name="class">btn-secondary</attribute>
+                <attribute name="invisible">state != 'validated' or has_net_to_pay</attribute>
+            </button>
+            <div name="button_box" position="inside">
+                <button name="action_open_move" class="oe_stat_button" icon="fa-bars" type="object"
+                        invisible="not move_id" groups="account.group_account_invoice">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Journal Entry</span>
+                        <span class="o_stat_value"><field name="move_state"/></span>
+                    </div>
+                </button>
+            </div>
+            <page name="other_info" position="before">
+                <page string="Accounting" name="accounting" groups="account.group_account_invoice">
+                    <group>
+                        <group>
+                            <field name="journal_id"/>
+                            <field name="date" readonly="state != 'draft'" placeholder="End of the payslip month"/>
+                        </group>
+                        <group>
+                            <field name="move_id"/>
+                            <field name="batch_payroll_move_lines" invisible="1"/>
+                        </group>
+                    </group>
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="view_hr_payslip_tree_inherit_account" model="ir.ui.view">
+        <field name="name">hr.payslip.list.account</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="jkm_hr_payroll.view_hr_payslip_tree"/>
+        <field name="arch" type="xml">
+            <field name="state" position="before">
+                <field name="move_id" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_register_payment" model="ir.actions.server">
+        <field name="name">Register Payment</field>
+        <field name="model_id" ref="jkm_hr_payroll.model_hr_payslip"/>
+        <field name="binding_model_id" ref="jkm_hr_payroll.model_hr_payslip"/>
+        <field name="binding_view_types">list</field>
+        <field name="group_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+        <field name="state">code</field>
+        <field name="code">action = records.filtered('has_net_to_pay').action_register_payment()</field>
+    </record>
+</odoo>

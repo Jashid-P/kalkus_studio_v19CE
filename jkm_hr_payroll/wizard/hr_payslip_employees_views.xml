@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payslip_by_employees" model="ir.ui.view">
+        <field name="name">hr.payslip.employees.form</field>
+        <field name="model">hr.payslip.employees</field>
+        <field name="arch" type="xml">
+            <form string="Generate Payslips">
+                <group>
+                    <group>
+                        <field name="payslip_run_id" invisible="1"/>
+                        <field name="structure_id" options="{'no_create': True}"
+                               placeholder="Use the default structure of each contract"/>
+                        <field name="structure_type_id" options="{'no_create': True}"/>
+                        <field name="department_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+                <separator string="Employees"/>
+                <field name="employee_ids" nolabel="1" widget="many2many">
+                    <list>
+                        <field name="name"/>
+                        <field name="department_id"/>
+                        <field name="job_id"/>
+                        <field name="work_email"/>
+                    </list>
+                </field>
+                <footer>
+                    <button string="Generate" name="compute_sheet" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

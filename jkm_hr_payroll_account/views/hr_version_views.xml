@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_version_payroll_form_view_inherit_account" model="ir.ui.view">
+        <field name="name">hr.version.payroll.form.account</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="jkm_hr_payroll.hr_version_payroll_form_view"/>
+        <field name="arch" type="xml">
+            <field name="hourly_wage" position="after">
+                <field name="analytic_distribution" widget="analytic_distribution"
+                       groups="analytic.group_analytic_accounting"/>
+            </field>
+        </field>
+    </record>
+</odoo>

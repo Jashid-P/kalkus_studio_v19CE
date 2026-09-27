@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_rule_parameter_demo_tax" model="hr.rule.parameter">
+        <field name="name">Flat Income Tax Rate (demo)</field>
+        <field name="code">jkm_demo_income_tax_rate</field>
+        <field name="country_id" eval="False"/>
+    </record>
+    <record id="hr_rule_parameter_demo_tax_value" model="hr.rule.parameter.value">
+        <field name="rule_parameter_id" ref="hr_rule_parameter_demo_tax"/>
+        <field name="date_from" eval="time.strftime('%Y-01-01')"/>
+        <field name="parameter_value">0.1</field>
+    </record>
+
+    <record id="hr_payslip_run_demo" model="hr.payslip.run">
+        <field name="name" eval="'Demo batch ' + time.strftime('%B %Y')"/>
+        <field name="date_start" eval="time.strftime('%Y-%m-01')"/>
+        <field name="date_end" eval="(DateTime.today() + relativedelta(day=31)).strftime('%Y-%m-%d')"/>
+    </record>
+</odoo>

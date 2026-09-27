@@ -1,0 +1,13 @@
+.o_jkm_payslip {
+    .o_jkm_payslip_info td {
+        padding: 2px 4px;
+    }
+    .o_jkm_payslip_lines .o_jkm_payslip_total td {
+        border-top: 1px solid #adb5bd;
+        background-color: #f8f9fa;
+    }
+    .o_jkm_payslip_net td {
+        border-top: 2px solid #212529;
+        font-size: 1.1em;
+    }
+}
