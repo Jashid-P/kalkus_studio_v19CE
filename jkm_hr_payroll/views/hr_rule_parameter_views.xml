@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_rule_parameter_view_tree" model="ir.ui.view">
+        <field name="name">hr.rule.parameter.list</field>
+        <field name="model">hr.rule.parameter</field>
+        <field name="arch" type="xml">
+            <list string="Rule Parameters">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="current_value"/>
+                <field name="valid_since"/>
+                <field name="country_id" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_rule_parameter_view_form" model="ir.ui.view">
+        <field name="name">hr.rule.parameter.form</field>
+        <field name="model">hr.rule.parameter</field>
+        <field name="arch" type="xml">
+            <form string="Rule Parameter">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Social Security Rate"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="country_id"/>
+                        </group>
+                        <group>
+                            <field name="current_value"/>
+                            <field name="valid_since"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Values" name="values">
+                            <field name="parameter_version_ids">
+                                <list editable="bottom">
+                                    <field name="date_from"/>
+                                    <field name="parameter_value"/>
+                                </list>
+                            </field>
+                            <p class="text-muted">
+                                Use it in a salary rule with <code>payslip._rule_parameter('CODE')</code>:
+                                the value valid on the payslip end date is returned.
+                            </p>
+                        </page>
+                        <page string="Description" name="description">
+                            <field name="description"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_rule_parameter" model="ir.actions.act_window">
+        <field name="name">Rule Parameters</field>
+        <field name="res_model">hr.rule.parameter</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_hr_payroll_root"
+              name="Payroll"
+              web_icon="jkm_hr_payroll,static/description/icon.png"
+              groups="group_hr_payroll_user"
+              sequence="290"/>
+
+    <!-- Payslips -->
+    <menuitem id="menu_hr_payroll_payslips" name="Payslips" parent="menu_hr_payroll_root" sequence="10"/>
+    <menuitem id="menu_hr_payslip_to_pay" name="To Pay" parent="menu_hr_payroll_payslips"
+              action="action_hr_payslip_to_pay" sequence="10"/>
+    <menuitem id="menu_hr_payslip_all" name="All Payslips" parent="menu_hr_payroll_payslips"
+              action="action_view_hr_payslip_month_form" sequence="20"/>
+    <menuitem id="menu_hr_payslip_run" name="Batches" parent="menu_hr_payroll_payslips"
+              action="action_hr_payslip_run" sequence="30"/>
+
+    <!-- Employees -->
+    <menuitem id="menu_hr_payroll_employees_root" name="Employees" parent="menu_hr_payroll_root" sequence="20"/>
+    <menuitem id="menu_hr_payroll_employees" name="Employees" parent="menu_hr_payroll_employees_root"
+              action="hr.open_view_employee_list_my" sequence="10"/>
+    <menuitem id="menu_hr_payroll_contracts" name="Contracts" parent="menu_hr_payroll_employees_root"
+              action="action_hr_version_payroll" sequence="20"/>
+    <menuitem id="menu_hr_salary_attachment" name="Salary Attachments" parent="menu_hr_payroll_employees_root"
+              action="action_hr_salary_attachment" sequence="30"/>
+
+    <!-- Work entries -->
+    <menuitem id="menu_hr_payroll_work_entries_root" name="Work Entries" parent="menu_hr_payroll_root" sequence="30"/>
+    <menuitem id="menu_hr_payroll_work_entries" name="Work Entries" parent="menu_hr_payroll_work_entries_root"
+              action="hr_work_entry.hr_work_entry_action" sequence="10"/>
+    <menuitem id="menu_hr_payroll_work_entries_conflict" name="Conflicts" parent="menu_hr_payroll_work_entries_root"
+              action="hr_work_entry.hr_work_entry_action_conflict" sequence="20"/>
+
+    <!-- Reporting -->
+    <menuitem id="menu_hr_payroll_report" name="Reporting" parent="menu_hr_payroll_root" sequence="40"/>
+    <menuitem id="menu_hr_payroll_analysis" name="Payroll Analysis" parent="menu_hr_payroll_report"
+              action="action_hr_payslip_line_analysis" sequence="10"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_hr_payroll_configuration" name="Configuration" parent="menu_hr_payroll_root"
+              groups="group_hr_payroll_manager" sequence="100"/>
+    <menuitem id="menu_hr_payroll_structure_type" name="Structure Types" parent="menu_hr_payroll_configuration"
+              action="action_hr_payroll_structure_type" sequence="10"/>
+    <menuitem id="menu_hr_payroll_structure" name="Structures" parent="menu_hr_payroll_configuration"
+              action="action_hr_payroll_structure" sequence="20"/>
+    <menuitem id="menu_hr_salary_rule" name="Rules" parent="menu_hr_payroll_configuration"
+              action="action_hr_salary_rule" sequence="30"/>
+    <menuitem id="menu_hr_salary_rule_category" name="Rule Categories" parent="menu_hr_payroll_configuration"
+              action="action_hr_salary_rule_category" sequence="40"/>
+    <menuitem id="menu_hr_rule_parameter" name="Rule Parameters" parent="menu_hr_payroll_configuration"
+              action="action_hr_rule_parameter" sequence="50"/>
+    <menuitem id="menu_hr_payslip_input_type" name="Other Input Types" parent="menu_hr_payroll_configuration"
+              action="action_hr_payslip_input_type" sequence="60"/>
+    <menuitem id="menu_hr_payroll_work_entry_type" name="Work Entry Types" parent="menu_hr_payroll_configuration"
+              action="hr_work_entry.hr_work_entry_type_action" sequence="70"/>
+    <menuitem id="menu_hr_payroll_working_schedules" name="Working Schedules" parent="menu_hr_payroll_configuration"
+              action="resource.action_resource_calendar_form" sequence="80"/>
+</odoo>

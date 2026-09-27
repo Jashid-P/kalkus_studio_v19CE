@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_salary_attachment_view_tree" model="ir.ui.view">
+        <field name="name">hr.salary.attachment.list</field>
+        <field name="model">hr.salary.attachment</field>
+        <field name="arch" type="xml">
+            <list string="Salary Attachments" sample="1" decoration-muted="state != 'open'">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="description"/>
+                <field name="other_input_type_id"/>
+                <field name="date_start"/>
+                <field name="date_estimated_end" optional="show"/>
+                <field name="monthly_amount"/>
+                <field name="total_amount" optional="show"/>
+                <field name="paid_amount" sum="Paid" optional="show"/>
+                <field name="remaining_amount" sum="Remaining" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'open'"
+                       decoration-success="state == 'close'" decoration-muted="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_salary_attachment_view_form" model="ir.ui.view">
+        <field name="name">hr.salary.attachment.form</field>
+        <field name="model">hr.salary.attachment</field>
+        <field name="arch" type="xml">
+            <form string="Salary Attachment">
+                <header>
+                    <button name="action_done" type="object" string="Mark as Completed" invisible="state != 'open'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'open'"/>
+                    <button name="action_open" type="object" string="Reopen" invisible="state == 'open'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,close"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_payslips" class="oe_stat_button" icon="fa-book" type="object"
+                                invisible="payslip_count == 0">
+                            <field name="payslip_count" widget="statinfo" string="Payslips"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="description"/>
+                        <h1><field name="description" placeholder="e.g. Court order 2026/123"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" options="{'no_create': True}" readonly="state != 'open'"/>
+                            <field name="other_input_type_id" options="{'no_create': True}" readonly="state != 'open'"/>
+                            <field name="date_start" readonly="state != 'open'"/>
+                            <field name="no_end_date" readonly="state != 'open'"/>
+                            <field name="date_estimated_end" invisible="no_end_date or state != 'open'"/>
+                            <field name="date_end" invisible="state == 'open'"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="monthly_amount" readonly="state != 'open'"/>
+                            <field name="total_amount" invisible="no_end_date" required="not no_end_date" readonly="state != 'open'"/>
+                            <field name="paid_amount"/>
+                            <field name="remaining_amount" invisible="no_end_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Additional information..."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_salary_attachment_view_search" model="ir.ui.view">
+        <field name="name">hr.salary.attachment.search</field>
+        <field name="model">hr.salary.attachment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="description"/>
+                <field name="other_input_type_id"/>
+                <filter string="Running" name="running" domain="[('state', '=', 'open')]"/>
+                <filter string="Completed" name="completed" domain="[('state', '=', 'close')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancel')]"/>
+                <group>
+                    <filter string="Employee" name="group_by_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Type" name="group_by_type" context="{'group_by': 'other_input_type_id'}"/>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_salary_attachment" model="ir.actions.act_window">
+        <field name="name">Salary Attachments</field>
+        <field name="res_model">hr.salary.attachment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="hr_salary_attachment_view_search"/>
+        <field name="context">{'search_default_running': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new salary attachment
+            </p>
+            <p>
+                Garnishments, salary assignments, child support or loans deducted
+                from every payslip until the total amount is paid.
+            </p>
+        </field>
+    </record>
+</odoo>

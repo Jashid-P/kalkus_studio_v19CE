@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payslip_line_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.line.list</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <list string="Payslip Lines" create="0" edit="0" delete="0">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="slip_id"/>
+                <field name="employee_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category_id"/>
+                <field name="quantity" optional="hide"/>
+                <field name="rate" optional="hide"/>
+                <field name="amount" optional="hide"/>
+                <field name="total" sum="Total"/>
+                <field name="state" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_payslip_line_pivot" model="ir.ui.view">
+        <field name="name">hr.payslip.line.pivot</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Payroll Analysis" sample="1">
+                <field name="employee_id" type="row"/>
+                <field name="code" type="col"/>
+                <field name="total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_hr_payslip_line_graph" model="ir.ui.view">
+        <field name="name">hr.payslip.line.graph</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <graph string="Payroll Analysis" sample="1" type="bar" stacked="1">
+                <field name="date_to" interval="month"/>
+                <field name="category_id"/>
+                <field name="total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_hr_payslip_line_filter" model="ir.ui.view">
+        <field name="name">hr.payslip.line.select</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Payslip Lines">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="employee_id"/>
+                <field name="slip_id"/>
+                <field name="category_id"/>
+                <field name="department_id"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', 'in', ['validated', 'paid'])]"/>
+                <separator/>
+                <filter string="Gross" name="gross" domain="[('code', '=', 'GROSS')]"/>
+                <filter string="Net" name="net" domain="[('code', '=', 'NET')]"/>
+                <separator/>
+                <filter string="Period" name="date_filter" date="date_to"/>
+                <group>
+                    <filter string="Employee" name="group_by_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_by_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Category" name="group_by_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Rule" name="group_by_rule" context="{'group_by': 'code'}"/>
+                    <filter string="Period" name="group_by_date" context="{'group_by': 'date_to:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_line_analysis" model="ir.actions.act_window">
+        <field name="name">Payroll Analysis</field>
+        <field name="res_model">hr.payslip.line</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="view_hr_payslip_line_filter"/>
+        <field name="context">{'search_default_confirmed': 1}</field>
+    </record>
+</odoo>

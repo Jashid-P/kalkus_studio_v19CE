@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payslip_run_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.run.list</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="arch" type="xml">
+            <list string="Payslip Batches" sample="1">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="payslip_count" string="Payslips"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="gross_sum" sum="Total Gross" optional="show"/>
+                <field name="net_sum" sum="Total Net"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == '01_ready'" decoration-primary="state == '02_close'"
+                       decoration-success="state == '03_paid'" decoration-muted="state == '04_cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_payslip_run_kanban" model="ir.ui.view">
+        <field name="name">hr.payslip.run.kanban</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1">
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex">
+                            <field name="name" class="fw-bold"/>
+                            <field name="state" widget="label_selection" class="ms-auto"
+                                   options="{'classes': {'01_ready': 'info', '02_close': 'primary', '03_paid': 'success', '04_cancel': 'default'}}"/>
+                        </div>
+                        <span><field name="date_start"/> - <field name="date_end"/></span>
+                        <div class="d-flex">
+                            <span><field name="payslip_count"/> payslips</span>
+                            <field name="net_sum" widget="monetary" class="ms-auto fw-bold"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="hr_payslip_run_form" model="ir.ui.view">
+        <field name="name">hr.payslip.run.form</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="arch" type="xml">
+            <form string="Payslip Batch">
+                <header>
+                    <button name="action_open_payslip_employees" type="object" string="Generate Payslips"
+                            class="oe_highlight" invisible="state != '01_ready' or not id" data-hotkey="g"/>
+                    <button name="action_compute_sheets" type="object" string="Compute Sheets"
+                            invisible="state != '01_ready' or payslip_count == 0"/>
+                    <button name="action_validate" type="object" string="Validate" class="oe_highlight"
+                            invisible="state != '01_ready' or payslip_count == 0" data-hotkey="v"
+                            confirm="Validate all the draft payslips of this batch?"/>
+                    <button name="action_paid" type="object" string="Mark as Paid" class="oe_highlight"
+                            invisible="state != '02_close'"/>
+                    <button name="action_print_payslips" type="object" string="Print Payslips"
+                            invisible="state not in ('02_close', '03_paid')"/>
+                    <button name="action_draft" type="object" string="Set to Draft"
+                            invisible="state not in ('02_close', '04_cancel')"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('01_ready', '02_close')"
+                            confirm="Cancel all the payslips of this batch?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="01_ready,02_close,03_paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_payslips" class="oe_stat_button" icon="fa-book" type="object">
+                            <field name="payslip_count" widget="statinfo" string="Payslips"/>
+                        </button>
+                    </div>
+                    <label for="name" class="oe_edit_only"/>
+                    <h1><field name="name" placeholder="e.g. January 2026" readonly="state != '01_ready'"/></h1>
+                    <group>
+                        <group>
+                            <label for="date_start" string="Period"/>
+                            <div class="o_row">
+                                <field name="date_start" class="oe_inline" readonly="state != '01_ready'"/> -
+                                <field name="date_end" class="oe_inline" readonly="state != '01_ready'"/>
+                            </div>
+                            <field name="structure_id" readonly="state != '01_ready'" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != '01_ready'"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="gross_sum"/>
+                            <field name="net_sum"/>
+                            <field name="employer_cost_sum"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Payslips" name="payslips">
+                            <field name="slip_ids" readonly="1">
+                                <list decoration-info="state == 'draft'" decoration-muted="state == 'cancel'">
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="number"/>
+                                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                                    <field name="struct_id" optional="hide"/>
+                                    <field name="basic_wage" sum="Basic"/>
+                                    <field name="gross_wage" sum="Gross"/>
+                                    <field name="net_wage" sum="Net"/>
+                                    <field name="state" widget="badge"
+                                           decoration-info="state == 'draft'" decoration-success="state == 'paid'"
+                                           decoration-primary="state == 'validated'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_payslip_run_filter" model="ir.ui.view">
+        <field name="name">hr.payslip.run.search</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="arch" type="xml">
+            <search string="Search Payslip Batches">
+                <field name="name"/>
+                <filter string="Ready" name="ready" domain="[('state', '=', '01_ready')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', '02_close')]"/>
+                <filter string="Paid" name="paid" domain="[('state', '=', '03_paid')]"/>
+                <separator/>
+                <filter string="Period" name="date_filter" date="date_end"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Period" name="group_by_date" context="{'group_by': 'date_end:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_run" model="ir.actions.act_window">
+        <field name="name">Payslip Batches</field>
+        <field name="res_model">hr.payslip.run</field>
+        <field name="path">payslip-batches</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="hr_payslip_run_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new payslip batch
+            </p>
+            <p>
+                A batch groups the payslips of a pay period so they can be generated,
+                computed, validated and paid together.
+            </p>
+        </field>
+    </record>
+</odoo>

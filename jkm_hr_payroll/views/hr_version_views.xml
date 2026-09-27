@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_version_payroll_list_view" model="ir.ui.view">
+        <field name="name">hr.version.payroll.list</field>
+        <field name="model">hr.version</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <list string="Contracts" sample="1">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="date_version" optional="hide"/>
+                <field name="contract_date_start"/>
+                <field name="contract_date_end"/>
+                <field name="contract_type_id" optional="show"/>
+                <field name="structure_type_id"/>
+                <field name="structure_id" optional="show"/>
+                <field name="schedule_pay" optional="show"/>
+                <field name="wage_type" optional="hide"/>
+                <field name="wage" sum="Total Wage"/>
+                <field name="hourly_wage" optional="hide"/>
+                <field name="resource_calendar_id" optional="hide"/>
+                <field name="department_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_version_payroll_form_view" model="ir.ui.view">
+        <field name="name">hr.version.payroll.form</field>
+        <field name="model">hr.version</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <form string="Contract">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_payslips" class="oe_stat_button" icon="fa-book" type="object">
+                            <field name="payslips_count" widget="statinfo" string="Payslips"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="employee_id"/>
+                        <h1><field name="employee_id" readonly="id" options="{'no_create': True}"/></h1>
+                    </div>
+                    <group>
+                        <group string="Contract">
+                            <field name="date_version"/>
+                            <label for="contract_date_start" string="Contract Period"/>
+                            <div class="o_row">
+                                <field name="contract_date_start" placeholder="Not Employed"/>
+                                <span>to</span>
+                                <field name="contract_date_end" placeholder="Indefinite"/>
+                            </div>
+                            <field name="contract_type_id"/>
+                            <field name="resource_calendar_id"/>
+                            <field name="work_entry_source"/>
+                        </group>
+                        <group string="Salary">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="structure_type_id"/>
+                            <field name="structure_id"/>
+                            <field name="schedule_pay"/>
+                            <field name="wage_type"/>
+                            <field name="wage" invisible="wage_type == 'hourly'"/>
+                            <field name="hourly_wage" invisible="wage_type != 'hourly'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="job_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_version_payroll" model="ir.actions.act_window">
+        <field name="name">Contracts</field>
+        <field name="res_model">hr.version</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('hr_version_payroll_list_view')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('hr_version_payroll_form_view')})]"/>
+        <field name="domain">[('employee_id', '!=', False), ('contract_date_start', '!=', False)]</field>
+        <field name="search_view_id" ref="hr.hr_version_search_view"/>
+    </record>
+</odoo>

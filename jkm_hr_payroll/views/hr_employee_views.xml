@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form_payroll" model="ir.ui.view">
+        <field name="name">hr.employee.form.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_open_payslips" class="oe_stat_button" icon="fa-book" type="object"
+                        groups="jkm_hr_payroll.group_hr_payroll_user" invisible="payslip_count == 0">
+                    <field name="payslip_count" widget="statinfo" string="Payslips"/>
+                </button>
+                <button name="action_open_salary_attachments" class="oe_stat_button" icon="fa-money" type="object"
+                        groups="jkm_hr_payroll.group_hr_payroll_user" invisible="salary_attachment_count == 0">
+                    <field name="salary_attachment_count" widget="statinfo" string="Attachments"/>
+                </button>
+            </div>
+            <xpath expr="//div[@name='wage']" position="after">
+                <field name="wage_type" groups="jkm_hr_payroll.group_hr_payroll_user"/>
+                <field name="hourly_wage" invisible="wage_type != 'hourly'" groups="jkm_hr_payroll.group_hr_payroll_user"/>
+                <field name="schedule_pay" groups="jkm_hr_payroll.group_hr_payroll_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

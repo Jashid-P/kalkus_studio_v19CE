@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_salary_rule_list" model="ir.ui.view">
+        <field name="name">hr.salary.rule.list</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="arch" type="xml">
+            <list string="Salary Rules">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category_id"/>
+                <field name="struct_id"/>
+                <field name="amount_select" optional="show"/>
+                <field name="condition_select" optional="hide"/>
+                <field name="appears_on_payslip" optional="hide"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_salary_rule_form" model="ir.ui.view">
+        <field name="name">hr.salary.rule.form</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="arch" type="xml">
+            <form string="Salary Rule">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Transport Allowance"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="category_id"/>
+                            <field name="struct_id"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="appears_on_payslip"/>
+                            <field name="appears_on_employee_cost_dashboard"/>
+                            <field name="partner_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="General" name="general">
+                            <group>
+                                <group string="Conditions" name="conditions">
+                                    <field name="condition_select"/>
+                                    <field name="condition_other_input_id" invisible="condition_select != 'input'"
+                                           required="condition_select == 'input'"/>
+                                    <field name="condition_range" invisible="condition_select != 'range'"
+                                           required="condition_select == 'range'"/>
+                                    <field name="condition_range_min" invisible="condition_select != 'range'"/>
+                                    <field name="condition_range_max" invisible="condition_select != 'range'"/>
+                                </group>
+                                <group string="Computation" name="computation">
+                                    <field name="amount_select"/>
+                                    <field name="amount_fix" invisible="amount_select != 'fix'"/>
+                                    <field name="amount_percentage" invisible="amount_select != 'percentage'"/>
+                                    <field name="amount_percentage_base" invisible="amount_select != 'percentage'"
+                                           required="amount_select == 'percentage'"/>
+                                    <field name="quantity" invisible="amount_select not in ('fix', 'percentage')"/>
+                                    <field name="amount_other_input_id" invisible="amount_select != 'input'"
+                                           required="amount_select == 'input'"/>
+                                </group>
+                            </group>
+                            <div invisible="condition_select != 'python'">
+                                <separator string="Python Condition"/>
+                                <field name="condition_python" widget="code" options="{'mode': 'python'}"/>
+                            </div>
+                            <div invisible="amount_select != 'code'">
+                                <separator string="Python Code"/>
+                                <field name="amount_python_compute" widget="code" options="{'mode': 'python'}"/>
+                            </div>
+                        </page>
+                        <page string="Description" name="description">
+                            <field name="note" placeholder="Explain what this rule does..."/>
+                        </page>
+                        <page string="Help" name="help">
+                            <div class="o_form_label">Available variables in Python code</div>
+                            <ul>
+                                <li><code>payslip</code>: the payslip (<code>payslip.paid_amount</code>, <code>payslip.date_from</code>, <code>payslip._rule_parameter('CODE')</code>, <code>payslip._sum('CODE', from_date, to_date)</code>...)</li>
+                                <li><code>employee</code>: the employee</li>
+                                <li><code>version</code> (alias <code>contract</code>): the contract (<code>version.wage</code>, <code>version.hourly_wage</code>...)</li>
+                                <li><code>categories['CODE']</code>: total of the rules of a category computed so far</li>
+                                <li><code>rules['CODE']</code> (alias <code>result_rules</code>): dict with <code>total</code>, <code>amount</code>, <code>quantity</code>, <code>rate</code> of a rule computed so far</li>
+                                <li><code>worked_days['CODE']</code>: worked days line (<code>number_of_days</code>, <code>number_of_hours</code>, <code>amount</code>)</li>
+                                <li><code>inputs['CODE']</code>: other input (<code>amount</code>, <code>name</code>)</li>
+                                <li>Rule codes computed so far are also available as variables holding their total.</li>
+                            </ul>
+                            <div class="o_form_label">Values to set</div>
+                            <ul>
+                                <li><code>result</code>: the amount (required)</li>
+                                <li><code>result_qty</code>: the quantity (default 1)</li>
+                                <li><code>result_rate</code>: the rate in percent (default 100)</li>
+                                <li><code>result_name</code>: overrides the line name</li>
+                            </ul>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_rule_filter" model="ir.ui.view">
+        <field name="name">hr.salary.rule.select</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="arch" type="xml">
+            <search string="Search Salary Rule">
+                <field name="name" string="Salary Rules" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="category_id"/>
+                <field name="struct_id"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Category" name="group_by_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Structure" name="group_by_struct" context="{'group_by': 'struct_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_salary_rule" model="ir.actions.act_window">
+        <field name="name">Salary Rules</field>
+        <field name="res_model">hr.salary.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_hr_rule_filter"/>
+        <field name="context">{'search_default_group_by_struct': 1}</field>
+    </record>
+</odoo>

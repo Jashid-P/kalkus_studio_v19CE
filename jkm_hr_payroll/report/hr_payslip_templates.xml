@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payslip_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
+            <div class="page o_jkm_payslip">
+                <h2 class="mb-1" t-field="o.name"/>
+                <div class="text-muted mb-3">
+                    <span t-if="o.number">Reference: <span t-field="o.number"/></span>
+                    <span t-if="o.credit_note" class="badge text-bg-warning ms-2">Refund</span>
+                </div>
+
+                <table class="table table-sm table-borderless o_jkm_payslip_info">
+                    <tr>
+                        <td class="fw-bold w-25">Employee</td>
+                        <td class="w-25"><span t-field="o.employee_id"/></td>
+                        <td class="fw-bold w-25">Period</td>
+                        <td class="w-25"><span t-field="o.date_from"/> - <span t-field="o.date_to"/></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Job Position</td>
+                        <td><span t-out="o.employee_id.job_title or o.job_id.name or ''"/></td>
+                        <td class="fw-bold">Department</td>
+                        <td><span t-field="o.department_id"/></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Employee ID</td>
+                        <td><span t-out="o.employee_id.sudo().identification_id or ''"/></td>
+                        <td class="fw-bold">Contract Start</td>
+                        <td><span t-out="o.version_id.sudo().contract_date_start" t-options="{'widget': 'date'}"/></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Bank Account</td>
+                        <td><span t-out="o.employee_id.sudo().primary_bank_account_id.display_name or ''"/></td>
+                        <td class="fw-bold">Pay Structure</td>
+                        <td><span t-field="o.struct_id"/></td>
+                    </tr>
+                </table>
+
+                <t t-set="worked_days" t-value="o.worked_days_line_ids"/>
+                <table t-if="worked_days" class="table table-sm mt-3">
+                    <thead>
+                        <tr>
+                            <th>Worked Days</th>
+                            <th class="text-end">Days</th>
+                            <th class="text-end">Hours</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="worked_days" t-as="wd">
+                            <td><span t-field="wd.name"/></td>
+                            <td class="text-end"><span t-field="wd.number_of_days"/></td>
+                            <td class="text-end"><span t-field="wd.number_of_hours" t-options="{'widget': 'float_time'}"/></td>
+                            <td class="text-end"><span t-field="wd.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-sm mt-3 o_jkm_payslip_lines">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="text-end">Quantity</th>
+                            <th class="text-end">Rate (%)</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o._get_lines_to_print()" t-as="line"
+                            t-att-class="'fw-bold o_jkm_payslip_total' if line.code in ('GROSS', 'NET') else None">
+                            <td><span t-field="line.name"/></td>
+                            <td class="text-end"><span t-if="line.code not in ('GROSS', 'NET')" t-field="line.quantity"/></td>
+                            <td class="text-end"><span t-if="line.code not in ('GROSS', 'NET')" t-field="line.rate"/></td>
+                            <td class="text-end"><span t-if="line.code not in ('GROSS', 'NET')" t-field="line.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                            <td class="text-end"><span t-field="line.total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="row mt-4">
+                    <div class="col-6 offset-6">
+                        <table class="table table-sm">
+                            <tr class="o_jkm_payslip_net">
+                                <td class="fw-bold">Net to Pay</td>
+                                <td class="text-end fw-bold">
+                                    <span t-field="o.net_wage" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                </td>
+                            </tr>
+                            <tr t-if="o.paid_date">
+                                <td>Paid On</td>
+                                <td class="text-end"><span t-field="o.paid_date"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <p t-if="o.note" class="mt-3"><span t-field="o.note"/></p>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_payslip">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="jkm_hr_payroll.report_payslip_document" t-lang="o.employee_id.lang or o.env.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>
