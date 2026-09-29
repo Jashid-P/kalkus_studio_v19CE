@@ -76,7 +76,7 @@ class HrPayslip(models.Model):
     job_id = fields.Many2one('hr.job', string='Job Position', related='employee_id.job_id', readonly=True, store=True)
     date_from = fields.Date(
         string='From', required=True, tracking=True,
-        default=lambda self: date.today().replace(day=1))
+        compute='_compute_date_from', store=True, readonly=False, precompute=True)
     date_to = fields.Date(
         string='To', required=True, tracking=True,
         compute='_compute_date_to', store=True, readonly=False, precompute=True)
@@ -166,6 +166,24 @@ class HrPayslip(models.Model):
             if not slip.struct_id or (default_struct and slip.struct_id.type_id != slip.version_id.structure_type_id):
                 slip.struct_id = default_struct
 
+    @api.depends('employee_id')
+    def _compute_date_from(self):
+        # Start of the pay period of the employee's schedule (Monday for weekly,
+        # 1st of the quarter for quarterly...), around the date already set or today.
+        StructureType = self.env['hr.payroll.structure.type']
+        for slip in self:
+            if slip.state not in ('draft', False):
+                continue
+            if slip._origin.id:
+                reference = slip.date_from or date.today()
+            else:
+                # new payslip: the period containing today, or the date given by the context (batch)
+                reference = fields.Date.to_date(self.env.context.get('default_date_from')) or date.today()
+            schedule = 'monthly'
+            if slip.employee_id:
+                schedule = slip.employee_id._get_version(reference).schedule_pay or 'monthly'
+            slip.date_from = StructureType._get_schedule_period_start(schedule, reference)
+
     @api.depends('date_from', 'version_id', 'struct_id')
     def _compute_date_to(self):
         StructureType = self.env['hr.payroll.structure.type']
@@ -203,6 +221,8 @@ class HrPayslip(models.Model):
         is_full_month = self.date_from.day == 1 and (date_to.month != (date_to + timedelta(days=1)).month)
         if is_full_month and self.date_from.month == date_to.month and self.date_from.year == date_to.year:
             return format_date(self.env, self.date_from, lang_code=lang, date_format='MMMM y')
+        if self.date_from == date_to:
+            return format_date(self.env, self.date_from, lang_code=lang)
         return '%s - %s' % (
             format_date(self.env, self.date_from, lang_code=lang),
             format_date(self.env, date_to, lang_code=lang),
@@ -301,13 +321,17 @@ class HrPayslip(models.Model):
             versions = slip.employee_id._get_versions_with_contract_overlap_with_period(slip.date_from, slip.date_to)
             versions.sudo().generate_work_entries(slip.date_from, slip.date_to)
 
+    def _get_proration_basis_days(self):
+        """Days in the pay period on a 30-days-per-month basis (30 for monthly, 90 for
+        quarterly...), or ``None`` when the payslip is prorated on the working schedule."""
+        self.ensure_one()
+        if self.struct_id.proration_method != 'fixed_30' or self.version_id.wage_type == 'hourly':
+            return None
+        return self.env['hr.payroll.structure.type']._get_schedule_basis_days(self._get_schedule_pay())
+
     def _is_fixed_30_proration(self):
         self.ensure_one()
-        return (
-            self.struct_id.proration_method == 'fixed_30'
-            and self.version_id.wage_type != 'hourly'
-            and self._get_schedule_pay() == 'monthly'
-        )
+        return bool(self._get_proration_basis_days())
 
     def _get_out_of_contract_ranges(self):
         self.ensure_one()
@@ -356,7 +380,8 @@ class HrPayslip(models.Model):
         out_days = out_hours / hours_per_day
         if self._is_fixed_30_proration():
             # On a 30-day basis, days out of contract are calendar days (at most 30).
-            out_days = min(sum((stop - start).days + 1 for start, stop in self._get_out_of_contract_ranges()), 30)
+            out_days = min(sum((stop - start).days + 1 for start, stop in self._get_out_of_contract_ranges()),
+                           self._get_proration_basis_days())
         out_type = self.env.ref('hr_work_entry.hr_work_entry_type_out_of_contract', raise_if_not_found=False)
         if out_type and (float_compare(out_hours, 0.0, precision_digits=2) > 0 or out_days > 0):
             values.append({

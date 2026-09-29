@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Odoo
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+
+# Virtual environment
+.venv/
+venv/
+env/

@@ -2,7 +2,7 @@
 from datetime import date, datetime
 
 from odoo.exceptions import UserError
-from odoo.tests import tagged
+from odoo.tests import Form, tagged
 from odoo.tests.common import TransactionCase
 
 
@@ -82,6 +82,19 @@ class TestPayslip(TransactionCase):
         payslip.compute_sheet()
         self.assertAlmostEqual(payslip.basic_wage, 5000.0)
         self.assertAlmostEqual(payslip.net_wage, 5000.0)
+
+    def test_form_save_with_existing_work_entries(self):
+        # Work entries already exist: the form builds the worked days before saving
+        # and must send their (read-only) type back to the server.
+        self.employee.version_id.schedule_pay = 'daily'
+        self.employee.version_id.generate_work_entries(date(2026, 3, 2), date(2026, 3, 2))
+        form = Form(self.env['hr.payslip'])
+        form.employee_id = self.employee
+        form.date_from = date(2026, 3, 2)
+        self.assertEqual(form.date_to, date(2026, 3, 2))
+        payslip = form.save()
+        self.assertEqual(payslip.worked_days_line_ids.work_entry_type_id.code, 'WORK100')
+        self.assertAlmostEqual(payslip.worked_days_line_ids.number_of_hours, 8.0)
 
     def test_contract_starts_mid_month(self):
         self.structure.proration_method = 'working_days'
@@ -317,6 +330,59 @@ class TestPayslip(TransactionCase):
         self.employee.version_id.schedule_pay = 'weekly'
         payslip = self.env['hr.payslip'].create({'employee_id': self.employee.id, 'date_from': date(2026, 3, 2)})
         self.assertEqual(payslip.date_to, date(2026, 3, 8))
+
+    def test_period_start_follows_schedule(self):
+        StructureType = self.env['hr.payroll.structure.type']
+        day = date(2026, 8, 20)  # a Thursday
+        expected = {
+            'daily': (date(2026, 8, 20), date(2026, 8, 20)),
+            'weekly': (date(2026, 8, 17), date(2026, 8, 23)),
+            'bi-weekly': (date(2026, 8, 17), date(2026, 8, 30)),
+            'semi-monthly': (date(2026, 8, 16), date(2026, 8, 31)),
+            'monthly': (date(2026, 8, 1), date(2026, 8, 31)),
+            'bi-monthly': (date(2026, 7, 1), date(2026, 8, 31)),
+            'quarterly': (date(2026, 7, 1), date(2026, 9, 30)),
+            'semi-annually': (date(2026, 7, 1), date(2026, 12, 31)),
+            'annually': (date(2026, 1, 1), date(2026, 12, 31)),
+        }
+        for schedule, (start, stop) in expected.items():
+            period_start = StructureType._get_schedule_period_start(schedule, day)
+            self.assertEqual(period_start, start, schedule)
+            self.assertEqual(StructureType._get_schedule_period_end(schedule, period_start), stop, schedule)
+
+    def test_payslip_period_defaults_to_schedule(self):
+        self.employee.version_id.schedule_pay = 'weekly'
+        payslip = self.env['hr.payslip'].create({'employee_id': self.employee.id})
+        self.assertEqual(payslip.date_from.weekday(), 0)
+        self.assertEqual((payslip.date_to - payslip.date_from).days, 6)
+        self.assertEqual(len(payslip.worked_days_line_ids), 1)
+        self.assertAlmostEqual(payslip.worked_days_line_ids.number_of_days, 5.0)
+
+    def test_quarterly_30_days_basis(self):
+        # Joins 16 March: 74 calendar days of the quarter out of contract = 74 x 9000 / 90.
+        employee = self._create_employee('Quinn Quarterly', 9000.0, date(2026, 3, 16))
+        employee.version_id.schedule_pay = 'quarterly'
+        payslip = self._create_payslip(employee, date_from=date(2026, 1, 1), date_to=date(2026, 3, 31))
+        out = payslip.worked_days_line_ids.filtered(lambda wd: wd.code == 'OUT')
+        self.assertAlmostEqual(out.number_of_days, 74.0)
+        payslip.compute_sheet()
+        self.assertAlmostEqual(payslip.basic_wage, 1600.0)
+
+    def test_annual_unpaid_leave_30_days_basis(self):
+        self.employee.version_id.schedule_pay = 'annually'
+        self._create_unpaid_leave(self.employee, date(2026, 3, 2), date(2026, 3, 4))
+        payslip = self._create_payslip(date_from=date(2026, 1, 1), date_to=date(2026, 12, 31))
+        payslip.compute_sheet()
+        # 3 unpaid days on a 360-day year
+        self.assertAlmostEqual(payslip.basic_wage, 3000.0 - 3 * 3000.0 / 360, places=2)
+
+    def test_weekly_prorated_on_working_days(self):
+        self.employee.version_id.schedule_pay = 'weekly'
+        self._create_unpaid_leave(self.employee, date(2026, 3, 3), date(2026, 3, 3))
+        payslip = self._create_payslip(date_from=date(2026, 3, 2), date_to=date(2026, 3, 8))
+        payslip.compute_sheet()
+        # weekly wage 3000 over 5 working days, 1 unpaid
+        self.assertAlmostEqual(payslip.basic_wage, 2400.0)
 
     def test_new_structure_default_rules(self):
         structure = self.env['hr.payroll.structure'].create({

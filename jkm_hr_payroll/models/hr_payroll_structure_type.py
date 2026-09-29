@@ -3,6 +3,17 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models
 
+# Length of each pay period in days on a "30 days per month" basis. Week-based
+# schedules have no such basis: they are prorated on the working schedule.
+SCHEDULE_BASIS_DAYS = {
+    'semi-monthly': 15,
+    'monthly': 30,
+    'bi-monthly': 60,
+    'quarterly': 90,
+    'semi-annually': 180,
+    'annually': 360,
+}
+
 
 class HrPayrollStructureType(models.Model):
     _inherit = 'hr.payroll.structure.type'
@@ -42,6 +53,23 @@ class HrPayrollStructureType(models.Model):
             ('weekly', 'Weekly'),
             ('daily', 'Daily'),
         ]
+
+    @api.model
+    def _get_schedule_period_start(self, schedule, day):
+        """First day of the pay period containing ``day``."""
+        if schedule == 'daily':
+            return day
+        if schedule in ('weekly', 'bi-weekly'):
+            return day - relativedelta(days=day.weekday())
+        if schedule == 'semi-monthly':
+            return day.replace(day=1 if day.day <= 15 else 16)
+        months_per_period = {'bi-monthly': 2, 'quarterly': 3, 'semi-annually': 6, 'annually': 12}.get(schedule, 1)
+        month = (day.month - 1) // months_per_period * months_per_period + 1
+        return day.replace(month=month, day=1)
+
+    @api.model
+    def _get_schedule_basis_days(self, schedule):
+        return SCHEDULE_BASIS_DAYS.get(schedule or 'monthly')
 
     @api.model
     def _get_schedule_period_end(self, schedule, date_from):
