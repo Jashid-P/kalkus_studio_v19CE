@@ -88,12 +88,13 @@ class HrPayrollStructure(models.Model):
         ('fixed_30', 'Fixed 30 days per month'),
         ('working_days', 'Working schedule of the period'),
     ], string="Salary Proration", default='fixed_30', required=True,
-        help="How a fixed monthly wage is reduced for unpaid days (unpaid time off, days out of contract):\n"
-             "* Fixed 30 days per month: each unpaid day deducts wage / 30; days out of contract "
-             "are counted in calendar days.\n"
+        help="How a fixed wage is reduced for unpaid days (unpaid time off, days out of contract):\n"
+             "* Fixed 30 days per month: each unpaid day deducts wage / 30 per month of the pay period "
+             "(semi-monthly 15, monthly 30, bi-monthly 60, quarterly 90, semi-annually 180, annually 360); "
+             "days out of contract are counted in calendar days. Daily, weekly and bi-weekly schedules "
+             "are always prorated on the working schedule.\n"
              "* Working schedule of the period: the wage is spread over the working hours of the "
-             "period, so a day is worth wage / working days of the month.\n"
-             "Only applies to monthly pay schedules with a fixed wage.")
+             "period, so a day is worth wage / working days of the period.")
     use_worked_day_lines = fields.Boolean(
         default=True, help="If unchecked, worked days are neither computed nor displayed on payslips.")
     schedule_pay = fields.Selection(related='type_id.default_schedule_pay')

@@ -17,7 +17,10 @@ class HrVersion(models.Model):
     is_past = fields.Boolean(groups=PAYROLL_GROUPS)
     is_future = fields.Boolean(groups=PAYROLL_GROUPS)
     is_in_contract = fields.Boolean(groups=PAYROLL_GROUPS)
-    wage = fields.Monetary(groups=PAYROLL_GROUPS)
+    wage = fields.Monetary(
+        groups=PAYROLL_GROUPS,
+        help="Gross wage for one pay period of the Pay Schedule: per day for Daily, per week for "
+             "Weekly, per month for Monthly, per year for Annually...")
     contract_wage = fields.Monetary(groups=PAYROLL_GROUPS)
     structure_type_id = fields.Many2one(groups=PAYROLL_GROUPS)
     work_entry_source = fields.Selection(groups=PAYROLL_GROUPS)

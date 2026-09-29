@@ -65,8 +65,9 @@ class HrPayslipWorkedDays(models.Model):
         wage = version.wage
         amounts = {}
         if slip._is_fixed_30_proration():
-            # Each unpaid day deducts wage / 30, whatever the length of the month.
-            day_rate = wage / 30.0
+            # Each unpaid day deducts wage / 30 per month of the period (wage / 30 monthly,
+            # wage / 90 quarterly...), whatever the real length of the months.
+            day_rate = wage / slip._get_proration_basis_days()
             hours_per_day = version.resource_calendar_id.hours_per_day or 8.0
             unpaid_days = sum(regular.filtered(lambda line: not line.is_paid).mapped('number_of_days'))
             paid_total = max(wage - unpaid_days * day_rate, 0.0)

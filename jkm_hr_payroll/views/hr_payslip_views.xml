@@ -145,7 +145,7 @@
                             <field name="worked_days_line_ids" readonly="state != 'draft'" nolabel="1">
                                 <list string="Worked Days" editable="bottom" create="0">
                                     <field name="currency_id" column_invisible="True"/>
-                                    <field name="work_entry_type_id" readonly="1"/>
+                                    <field name="work_entry_type_id" readonly="1" force_save="1"/>
                                     <field name="name"/>
                                     <field name="number_of_days" sum="Total Working Days"/>
                                     <field name="number_of_hours" widget="float_time" sum="Total Working Hours"/>
